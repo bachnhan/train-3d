@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="8" fill="#0b0f19"/>
+  <!-- Train cab body -->
+  <path d="M7 8C7 6.89543 7.89543 6 9 6H23C24.1046 6 25 6.89543 25 8V18C25 21.3137 22.3137 24 19 24H13C9.68629 24 7 21.3137 7 18V8Z" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+  <!-- Windshield -->
+  <path d="M10 9H22V15C22 15.5523 21.5523 16 21 16H11C10.4477 16 10 15.5523 10 15V9Z" fill="#0ea5e9"/>
+  <!-- Accent line -->
+  <path d="M8 18H24" stroke="#10b981" stroke-width="1.2"/>
+  <!-- Twin headlights -->
+  <circle cx="11.5" cy="20.5" r="1.25" fill="#fef08a"/>
+  <circle cx="20.5" cy="20.5" r="1.25" fill="#fef08a"/>
+  <!-- Track rails -->
+  <line x1="6" y1="28" x2="26" y2="28" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="12" y1="25" x2="10" y2="28" stroke="#475569" stroke-width="1.2"/>
+  <line x1="20" y1="25" x2="22" y2="28" stroke="#475569" stroke-width="1.2"/>
+</svg>

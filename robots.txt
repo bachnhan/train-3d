@@ -1,0 +1,5 @@
+# Robots.txt for Tokyo 3D (https://train.bachnhan.com/)
+User-agent: *
+Allow: /
+
+Sitemap: https://train.bachnhan.com/sitemap.xml

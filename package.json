@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/bachnhan/train-3d/issues"
   },
-  "homepage": "https://github.com/bachnhan/train-3d#readme",
+  "homepage": "https://train.bachnhan.com",
   "engines": {
     "node": ">=18.0.0"
   },
