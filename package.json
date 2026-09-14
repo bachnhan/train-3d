@@ -1,0 +1,37 @@
+{
+  "name": "train-3d",
+  "version": "1.0.0",
+  "description": "Procedural Web3D Tokyo Railway Diorama & Multi-Vehicle Simulation Engine",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bachnhan/train-3d.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bachnhan/train-3d/issues"
+  },
+  "homepage": "https://github.com/bachnhan/train-3d#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "python3 -m http.server 8008",
+    "test": "node scripts/qa.mjs && node scripts/geometry-qa.mjs",
+    "qa": "node scripts/qa.mjs",
+    "qa:geom": "node scripts/geometry-qa.mjs",
+    "contribute": "node scripts/contribute-3d.mjs"
+  },
+  "keywords": [
+    "threejs",
+    "webgl",
+    "railway",
+    "train-simulation",
+    "diorama",
+    "tokyo",
+    "plateau",
+    "openstreetmap",
+    "procedural-mesh"
+  ],
+  "author": "Nhan Nguyen <nhannhb92@gmail.com>",
+  "license": "MIT"
+}

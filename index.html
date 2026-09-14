@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tokyo 3D — Procedural Multi-Vehicle Urban Simulation & Diorama</title>
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="description" content="Procedural 3D Tokyo urban diorama and real-time multi-vehicle simulation engine.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/train-3d.css?v=129">
+  <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "./src/layout.js": "./src/layout.js?v=129",
+        "./src/scene.js": "./src/scene.js?v=129",
+        "./src/signage.js": "./src/signage.js?v=129",
+        "./src/architecture.js": "./src/architecture.js?v=129",
+        "./src/streetlife.js": "./src/streetlife.js?v=129",
+        "./src/pedestrians.js": "./src/pedestrians.js?v=129",
+        "./src/riverboat.js": "./src/riverboat.js?v=129",
+        "./src/sky.js": "./src/sky.js?v=129",
+        "./src/weather.js": "./src/weather.js?v=129",
+        "./src/water.js": "./src/water.js?v=129",
+        "./src/traffic.js": "./src/traffic.js?v=129",
+        "./src/builder.js": "./src/builder.js?v=129",
+        "./src/map-model.js": "./src/map-model.js?v=129",
+        "./src/spatial-geometry.mjs": "./src/spatial-geometry.mjs?v=129",
+        "./src/data/blocks.js": "./src/data/blocks.js?v=129",
+        "./src/data/map.js": "./src/data/map.js?v=129",
+        "./src/data/roads.js": "./src/data/roads.js?v=129",
+        "./src/materials.js": "./src/materials.js?v=129",
+        "./src/clearance.mjs": "./src/clearance.mjs?v=129",
+        "./src/spatial-grid.js": "./src/spatial-grid.js?v=129",
+        "./src/simulation-loop.js": "./src/simulation-loop.js?v=129",
+        "./src/audio.js": "./src/audio.js?v=129",
+        "./src/accessible-twin.js": "./src/accessible-twin.js?v=129",
+        "./src/train.js": "./src/train.js?v=129",
+        "./src/controls.js": "./src/controls.js?v=129",
+        "./src/cameras.js": "./src/cameras.js?v=129",
+        "./src/hud.js": "./src/hud.js?v=129",
+        "./stations.js": "./stations.js?v=129",
+        "./translations.js": "./translations.js?v=129"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- Global Inline SVG Symbols (No Unicode Emojis) -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <!-- Weather Icons -->
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+    </symbol>
+    <symbol id="icon-sunset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 18a5 5 0 0 0-10 0"></path>
+      <path d="M12 2v4m-7.07.93l2.83 2.83m11.31-2.83l-2.83 2.83M2 18h20m-18 4h16"></path>
+    </symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </symbol>
+    <symbol id="icon-rain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 13v6m-4-4v6m-4-6v6"></path>
+      <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path>
+    </symbol>
+    <symbol id="icon-snow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2v20m-7.07-2.93l14.14-14.14M2 12h20M4.93 4.93l14.14 14.14"></path>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+    </symbol>
+    <symbol id="icon-storm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path>
+      <path d="M13 11l-4 6h4l-2 5"></path>
+    </symbol>
+
+    <!-- Vehicle Icons -->
+    <symbol id="icon-train" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="3" width="16" height="15" rx="3"></rect>
+      <path d="M4 10h16M8 14h.01M16 14h.01M6 18l-2 3m14-3l2 3"></path>
+    </symbol>
+    <symbol id="icon-plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17.8 19.2L16 11l3.5-3.5a2.12 2.12 0 0 0-3-3L13 8 4.8 6.2a1 1 0 0 0-1.2 1.4L6 12l-2 3H1l2 2.5L1 20h4l2.5-2L10 18l4.4 2.4a1 1 0 0 0 1.4-1.2z"></path>
+    </symbol>
+    <symbol id="icon-boat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 17l3 4h14l3-4H2zM4 17l4-11h8l4 11M12 6V2"></path>
+    </symbol>
+    <symbol id="icon-bus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="3" width="16" height="15" rx="2"></rect>
+      <path d="M4 8h16M8 14h.01M16 14h.01M6 18v3m12-3v3M4 12h16"></path>
+    </symbol>
+    <symbol id="icon-taxi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 11l2-5h10l2 5v6H5v-6zM3 17h18M6 17v3m12-3v3M8 6h8V4H8v2z"></path>
+      <circle cx="7.5" cy="14" r="1" fill="currentColor"></circle>
+      <circle cx="16.5" cy="14" r="1" fill="currentColor"></circle>
+    </symbol>
+
+    <!-- Controls Icons -->
+    <symbol id="icon-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+    </symbol>
+    <symbol id="icon-lightning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+    </symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="4" width="4" height="16"></rect>
+      <rect x="14" y="4" width="4" height="16"></rect>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </symbol>
+    <symbol id="icon-zen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </symbol>
+  </svg>
+
+  <main id="app">
+    <canvas id="rail-canvas" aria-label="Tokyo Urban Diorama"></canvas>
+
+    <!-- Top Horizon Bar: Brand, Weather, Playback Controls -->
+    <header class="hud-top-bar" aria-label="Simulation Controls">
+      <div class="hud-brand">
+        <div class="route-mark" aria-hidden="true">TYO</div>
+        <div class="brand-text">
+          <h1 class="brand-title" data-i18n="title">Tokyo 3D ジオラマ</h1>
+          <p class="eyebrow" data-i18n="eyebrow">TOKYO URBAN DIORAMA · MULTI-VEHICLE SIMULATION</p>
+        </div>
+      </div>
+
+      <div class="hud-sep" aria-hidden="true"></div>
+
+      <!-- Weather Environment Pills -->
+      <div id="weather-buttons" role="group" aria-label="Weather Environment">
+        <button data-weather="clear" class="active">
+          <svg class="btn-icon"><use href="#icon-sun"></use></svg>
+          <span data-weather-label="clear">晴天</span>
+        </button>
+        <button data-weather="sunset">
+          <svg class="btn-icon"><use href="#icon-sunset"></use></svg>
+          <span data-weather-label="sunset">夕暮れ</span>
+        </button>
+        <button data-weather="night">
+          <svg class="btn-icon"><use href="#icon-moon"></use></svg>
+          <span data-weather-label="night">夜景</span>
+        </button>
+        <button data-weather="rain">
+          <svg class="btn-icon"><use href="#icon-rain"></use></svg>
+          <span data-weather-label="rain">雨天</span>
+        </button>
+        <button data-weather="snow">
+          <svg class="btn-icon"><use href="#icon-snow"></use></svg>
+          <span data-weather-label="snow">降雪</span>
+        </button>
+        <button data-weather="storm">
+          <svg class="btn-icon"><use href="#icon-storm"></use></svg>
+          <span data-weather-label="storm">雷雨</span>
+        </button>
+      </div>
+
+      <div class="hud-sep" aria-hidden="true"></div>
+
+      <!-- Simulation Playback & Audio Controls -->
+      <div class="hud-controls">
+        <button id="sound-toggle" class="ctrl-button" type="button" aria-label="Sound Toggle">
+          <svg class="ctrl-icon"><use href="#icon-sound"></use></svg>
+        </button>
+        <button id="pause-toggle" class="ctrl-button primary-ctrl" type="button" aria-label="Pause Simulation">
+          <svg class="ctrl-icon pause-icon"><use href="#icon-pause"></use></svg>
+        </button>
+        <button id="lightning-button" class="ctrl-button lightning-ctrl" type="button" aria-label="Trigger Lightning" style="display:none;">
+          <svg class="ctrl-icon"><use href="#icon-lightning"></use></svg>
+        </button>
+        <button id="zen-toggle" class="ctrl-button" type="button" aria-label="Zen Mode" title="Zen Mode (H)">
+          <svg class="ctrl-icon"><use href="#icon-zen"></use></svg>
+        </button>
+      </div>
+    </header>
+
+        <!-- Bottom Unified Command Dock (Floating Island Console) -->
+    <footer class="hud-bottom-dock" aria-label="Navigation & Telemetry">
+      <!-- Tier 1: Vehicles (Track) on Left, Landmarks on Right -->
+      <div class="dock-tier">
+        <div class="dock-group dock-track" aria-label="Track Vehicle">
+          <span class="dock-label" aria-hidden="true">TRACK</span>
+          <div id="vehicle-buttons" role="group">
+            <button data-vehicle="train" class="active">
+              <svg class="btn-icon"><use href="#icon-train"></use></svg>
+              <span data-vehicle-label="train">2026系 電車</span>
+            </button>
+            <button data-vehicle="plane">
+              <svg class="btn-icon"><use href="#icon-plane"></use></svg>
+              <span data-vehicle-label="plane">旅客機 羽田便</span>
+            </button>
+            <button data-vehicle="boat">
+              <svg class="btn-icon"><use href="#icon-boat"></use></svg>
+              <span data-vehicle-label="boat">渋谷川 巡回艇</span>
+            </button>
+            <button data-vehicle="bus">
+              <svg class="btn-icon"><use href="#icon-bus"></use></svg>
+              <span data-vehicle-label="bus">都バス 渋72</span>
+            </button>
+            <button data-vehicle="taxi">
+              <svg class="btn-icon"><use href="#icon-taxi"></use></svg>
+              <span data-vehicle-label="taxi">個人タクシー</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dock-group dock-places" aria-label="Districts & Landmarks">
+          <span class="dock-label" aria-hidden="true">PLACES</span>
+          <div id="landmark-buttons" role="group">
+            <button data-landmark="shibuya"><span>渋谷スクランブル</span></button>
+            <button data-landmark="namikibashi"><span>並木橋・渋谷川</span></button>
+            <button data-landmark="address"><span>代官山アドレス</span></button>
+            <button data-landmark="daikanyama"><span>代官山エリア</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 2: Camera (Lens) on Left, Live Telemetry + Speed on Right -->
+      <div class="dock-tier">
+        <div class="dock-group dock-lens" aria-label="Camera Perspectives">
+          <span class="dock-label" aria-hidden="true">LENS</span>
+          <div id="camera-buttons" role="group">
+            <button data-camera="follow" class="active">追跡</button>
+            <button data-camera="cab">運転台</button>
+            <button data-camera="locomotive">前頭部</button>
+            <button data-camera="trackside">沿道</button>
+            <button data-camera="room">俯瞰</button>
+            <button data-camera="layout">全景</button>
+          </div>
+        </div>
+
+        <!-- Telemetry Status & Speed Control -->
+        <div class="dock-group">
+          <section class="dock-telemetry" aria-live="polite">
+            <div class="tele-badges">
+              <span id="domain-badge" class="telemetry-pill domain-pill">SURFACE MOBILITY</span>
+              <span id="vehicle-chip" class="telemetry-pill vehicle-pill">
+                <svg class="pill-icon"><use href="#icon-train"></use></svg>
+                <span id="vehicle-chip-text">2026系 電車</span>
+              </span>
+              <span id="weather-chip" class="telemetry-pill weather-pill">
+                <svg class="pill-icon"><use href="#icon-sun"></use></svg>
+                <span id="weather-chip-text">晴天</span>
+              </span>
+            </div>
+            <div class="tele-divider" aria-hidden="true"></div>
+            <div class="tele-name-block">
+              <p id="station-name" class="tele-name">2026系 通勤列車</p>
+              <p id="station-caption" class="tele-sub">2026系 · 10両編成 高架線走行</p>
+            </div>
+            <div class="tele-divider" aria-hidden="true"></div>
+            <div class="tele-stat-block">
+              <span class="stat-label">SPEED</span>
+              <span id="telemetry-speed" class="tele-val">44 km/h</span>
+            </div>
+            <div class="tele-divider" aria-hidden="true"></div>
+            <div class="tele-stat-block">
+              <span class="stat-label">SECTOR</span>
+              <span id="telemetry-pos" class="tele-val">渋谷駅〜代官山</span>
+            </div>
+          </section>
+
+          <div class="tele-divider" aria-hidden="true"></div>
+
+          <div class="dock-speed">
+            <label id="speed-label">
+              <span class="dock-label" style="min-width:auto;" aria-hidden="true">SPD</span>
+              <input id="speed-control" type="range" min="0" max="100" value="44">
+            </label>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Restore Button when HUD is Hidden in Zen Mode -->
+    <button id="hud-restore-btn" class="hud-restore-btn" type="button" aria-label="Restore HUD">
+      <svg class="btn-icon"><use href="#icon-zen"></use></svg>
+      <span>HUD 表示</span>
+    </button>
+
+    <p class="data-credit" aria-label="Data Sources and Attribution">
+      <a href="https://www.mlit.go.jp/plateau/" target="_blank" rel="noopener noreferrer">PLATEAU Shibuya (MLIT)</a> <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a> <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer">ODbL</a>
+    </p>
+    <div id="loading-screen"><span class="route-mark">TYO</span><p data-i18n="loading">3D都市ジオラマを構築中…</p></div>
+  </main>
+  <script type="module" src="src/main.js?v=129"></script>
+</body>
+</html>

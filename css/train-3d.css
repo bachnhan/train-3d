@@ -1,0 +1,708 @@
+:root {
+  --glass-bg: rgba(10, 14, 22, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.22);
+  --glass-blur: 16px;
+  --text-primary: #f8fafc;
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  --accent-red: #da0442;
+  --accent-green: #22c55e;
+  --accent-blue: #38bdf8;
+  --accent-yellow: #fbbf24;
+  --ink: #0a0e16;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--text-primary);
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  user-select: none;
+}
+
+#rail-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  outline: none;
+}
+
+/* ==========================================================================
+   TOP HORIZON BAR
+   ========================================================================== */
+.hud-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.hud-hidden .hud-top-bar {
+  transform: translateY(-100%);
+}
+
+.hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+}
+
+.route-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 2px solid var(--accent-red);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--accent-red);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 12px rgba(218, 4, 66, 0.35);
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.eyebrow {
+  margin: 2px 0 0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hud-sep {
+  width: 1px;
+  height: 24px;
+  background: var(--glass-border);
+  margin: 0 12px;
+  flex-shrink: 0;
+}
+
+/* Weather Environment Buttons in Top Bar */
+#weather-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+#weather-buttons button {
+  padding: 5px 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  font: 700 11px "M PLUS Rounded 1c", sans-serif;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+#weather-buttons button:hover,
+#weather-buttons button:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text-primary);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-1px);
+}
+
+#weather-buttons button.active {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: var(--accent-blue);
+  color: #7dd3fc;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+/* Playback & Audio Controls in Top Bar */
+.hud-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ctrl-button {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+  transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ctrl-button:hover,
+.ctrl-button:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+#sound-toggle.enabled {
+  background: rgba(34, 197, 94, 0.22);
+  border-color: var(--accent-green);
+  color: #86efac;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.35);
+}
+
+.primary-ctrl {
+  background: var(--accent-yellow);
+  color: #0a0e16;
+  border-color: #f59e0b;
+}
+
+.primary-ctrl:hover {
+  background: #fde047;
+}
+
+.lightning-ctrl {
+  background: rgba(250, 204, 21, 0.22);
+  color: #fde047;
+  border-color: #eab308;
+  animation: pulse-glow 1.8s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(250, 204, 21, 0); }
+  50% { box-shadow: 0 0 12px rgba(250, 204, 21, 0.7); }
+}
+
+/* ==========================================================================
+   BOTTOM UNIFIED COMMAND DOCK (Floating Glass Island)
+   ========================================================================== */
+.hud-bottom-dock {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1420px, calc(100vw - 28px));
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 8px 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+body.hud-hidden .hud-bottom-dock {
+  transform: translate(-50%, calc(100% + 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dock-tier {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.dock-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.dock-label {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  min-width: 38px;
+  flex-shrink: 0;
+}
+
+.dock-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--glass-border);
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+#vehicle-buttons,
+#camera-buttons,
+#landmark-buttons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+#vehicle-buttons button,
+#camera-buttons button,
+#landmark-buttons button {
+  padding: 4px 9px;
+  min-height: 28px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  font: 700 11px "M PLUS Rounded 1c", sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+}
+
+#vehicle-buttons button:hover,
+#camera-buttons button:hover,
+#landmark-buttons button:hover,
+#vehicle-buttons button:focus-visible,
+#camera-buttons button:focus-visible,
+#landmark-buttons button:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text-primary);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-1px);
+}
+
+/* Vehicle active tab: green accent */
+#vehicle-buttons button.active {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: var(--accent-green);
+  color: #86efac;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+/* Camera active tab: blue accent */
+#camera-buttons button.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-blue);
+  color: #7dd3fc;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+/* Landmark active: accent red */
+#landmark-buttons button.active {
+  background: rgba(218, 4, 66, 0.25);
+  border-color: var(--accent-red);
+  color: #fda4af;
+  box-shadow: 0 0 10px rgba(218, 4, 66, 0.3);
+}
+
+/* Inline Telemetry in Dock Tier 2 */
+.dock-telemetry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.tele-badges {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.telemetry-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.domain-pill {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  letter-spacing: 0.08em;
+  font-size: 8.5px;
+}
+
+.vehicle-pill {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+
+.weather-pill {
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+}
+
+.tele-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--glass-border);
+  flex-shrink: 0;
+}
+
+.tele-name-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tele-name {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.tele-sub {
+  margin: 1px 0 0;
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.tele-stat-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.tele-val {
+  margin-top: 1px;
+  font-family: "Plus Jakarta Sans", "M PLUS Rounded 1c", sans-serif;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.dock-speed {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+#speed-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+input[type="range"] {
+  width: 72px;
+  accent-color: var(--accent-red);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   ICONS & RESTORE BUTTON
+   ========================================================================== */
+.btn-icon {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.pill-icon {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.ctrl-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Floating Restore Button when HUD is in Zen Mode */
+.hud-restore-btn {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 30;
+  display: none;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.hud-restore-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+body.hud-hidden .hud-restore-btn {
+  display: inline-flex;
+}
+
+.data-credit {
+  position: fixed;
+  z-index: 10;
+  right: 20px;
+  bottom: 94px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+  pointer-events: auto;
+  transition: opacity 0.35s ease;
+}
+
+.data-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.data-credit a:hover,
+.data-credit a:focus-visible {
+  color: #ffffff;
+}
+
+body.hud-hidden .data-credit {
+  opacity: 0;
+}
+
+#loading-screen {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  background: #0a0e16;
+  color: var(--text-primary);
+  transition: opacity .55s ease, visibility .55s;
+}
+
+#loading-screen .route-mark {
+  width: 62px;
+  height: 62px;
+  font-size: 20px;
+}
+
+#loading-screen p {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+
+#loading-screen.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN FOR TABLETS & MOBILE
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .dock-places {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .eyebrow {
+    display: none;
+  }
+  .hud-top-bar {
+    padding: 0 10px;
+  }
+  #weather-buttons button span {
+    display: none;
+  }
+  #weather-buttons button {
+    padding: 5px 8px;
+  }
+  .dock-speed {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .hud-top-bar {
+    padding: 0 8px;
+    height: 50px;
+    gap: 4px;
+  }
+  .hud-brand {
+    gap: 8px;
+  }
+  .brand-title {
+    font-size: 13px;
+  }
+  .route-mark {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  .hud-sep {
+    margin: 0 6px;
+  }
+  #weather-buttons {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 3px;
+  }
+  #weather-buttons::-webkit-scrollbar {
+    display: none;
+  }
+  #weather-buttons button {
+    padding: 4px 6px;
+    min-height: 28px;
+  }
+  .ctrl-button {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+  .ctrl-icon {
+    width: 15px;
+    height: 15px;
+  }
+  .hud-bottom-dock {
+    bottom: 8px;
+    width: calc(100vw - 16px);
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .dock-tier {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  .dock-tier::-webkit-scrollbar {
+    display: none;
+  }
+  .dock-group {
+    flex-shrink: 0;
+  }
+  .dock-places {
+    display: none;
+  }
+  .dock-speed {
+    display: none;
+  }
+  .data-credit {
+    right: 12px;
+    bottom: 84px;
+    font-size: 7px;
+    opacity: 0.6;
+  }
+}
