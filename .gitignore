@@ -62,3 +62,6 @@ __pycache__/
 *$py.class
 .pytest_cache/
 
+
+# Local Netlify folder
+.netlify
